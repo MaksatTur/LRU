@@ -2,6 +2,7 @@ package main
 
 import (
 	"container/list"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -60,14 +61,34 @@ func (lru *LRU) purge(){
 	}
 }
 
-func (lru *LRU) GetElement(key string) *Item  {
+func (lru *LRU) GetElementValue(key string) interface{}  {
 	element, exist := lru.items[key]
 	if exist{
+		lru.Lock()
 		lru.queue.MoveToFront(element)
+		element.Value.(*Item).Created = time.Now()
+		lru.Unlock()
+		return element.Value.(*Item).Value
 	}
 	return nil
 }
 
 func main() {
-	
+	lru := NewLRU(5)
+	lru.Set("1", "1")
+	lru.Set("2", "2")
+	lru.Set("3", 3)
+	lru.Set("4", 4)
+	lru.Set("5", nil)
+
+	for key, _ := range lru.items{
+		if element := lru.GetElementValue(key); element != nil{
+			fmt.Printf("Key = %s Value = %v\n", key, element)
+		} else {
+			fmt.Printf("Key = %s Value = %s\n", key, "nil")
+		}
+		//fmt.Printf("Key = %s, value = %v\n", key, val.Value)
+	}
+
+
 }
