@@ -65,10 +65,6 @@ func (lru *LRU) purge(){
 func (lru *LRU) GetElementValue(key string) interface{}  {
 	element, exist := lru.Items[key]
 	if exist{
-		lru.Lock()
-		lru.Queue.MoveToFront(element)
-		element.Value.(*Item).Created = time.Now()
-		lru.Unlock()
 		return element.Value.(*Item).Value
 	}
 	return nil
